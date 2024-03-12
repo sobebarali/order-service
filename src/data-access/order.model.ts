@@ -2,26 +2,84 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IOrder extends Document {
   userId: string;
-  productIds: string[];
-  quantities: number[];
+  products: Array<{
+    productId: string;
+    quantity: number;
+    price: number;
+  }>;
   totalAmount: number;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
+  shippingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  paymentMethod: string;
+  paymentResult?: {
+    id: string;
+    status: string;
+    updateTime: string;
+    emailAddress: string;
+  };
+  isPaid: boolean;
+  paidAt?: Date;
+  isDelivered: boolean;
+  deliveredAt?: Date;
 }
 
-const OrderSchema: Schema = new Schema({
-  userId: { type: String, required: true },
-  productIds: [{ type: String, required: true }],
-  quantities: [{ type: Number, required: true }],
-  totalAmount: { type: Number, required: true },
-  status: {
+const orderSchema: Schema = new mongoose.Schema({
+  userId: {
     type: String,
-    enum: ["pending", "processing", "shipped", "delivered"],
-    default: "pending",
+    required: true,
   },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+  products: [
+    {
+      productId: {
+        type: String,
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+  totalAmount: {
+    type: Number,
+    required: true,
+  },
+  shippingAddress: {
+    street: String,
+    city: String,
+    state: String,
+    zip: String,
+  },
+  paymentMethod: {
+    type: String,
+    required: true,
+  },
+  paymentResult: {
+    id: String,
+    status: String,
+    updateTime: String,
+    emailAddress: String,
+  },
+  isPaid: {
+    type: Boolean,
+    default: false,
+  },
+  paidAt: Date,
+  isDelivered: {
+    type: Boolean,
+    default: false,
+  },
+  deliveredAt: Date,
+}, {
+  timestamps: true,
 });
 
-export default mongoose.model<IOrder>("Order", OrderSchema);
+export default mongoose.model<IOrder>("Order", orderSchema);
